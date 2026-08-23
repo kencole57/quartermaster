@@ -615,20 +615,24 @@
                 variant="outlined"
                 :disabled="locationSaving"
               />
-              <v-text-field
+              <v-combobox
                 v-model="locationForm.location_label"
                 label="Location label"
+                :items="priorLocationLabels"
                 prepend-inner-icon="mdi-label-outline"
                 variant="outlined"
                 :disabled="locationSaving"
+                hide-details
                 required
               />
-              <v-text-field
+              <v-combobox
                 v-model="locationForm.path_or_detail"
                 label="Path or detail"
+                :items="priorLocationPaths"
                 prepend-inner-icon="mdi-file-tree-outline"
                 variant="outlined"
                 :disabled="locationSaving"
+                hide-details
               />
             </div>
             <v-textarea
@@ -783,6 +787,8 @@ const selectedCatalogItem = computed(() =>
 const selectedItemLocations = computed(() =>
   userItemLocations.value.filter((location) => location.item_id === selectedCatalogItemId.value)
 )
+const priorLocationLabels = computed(() => uniqueNonEmpty(userItemLocations.value.map((location) => location.location_label)))
+const priorLocationPaths = computed(() => uniqueNonEmpty(userItemLocations.value.map((location) => location.path_or_detail)))
 
 const metrics = computed(() => [
   { label: 'Catalog items', value: String(catalogItems.value.length), icon: 'mdi-archive-outline' },
@@ -1139,6 +1145,12 @@ function sortCatalogRows(first, second) {
   }
 
   return new Date(second.created_at) - new Date(first.created_at)
+}
+
+function uniqueNonEmpty(values) {
+  return [...new Set(values.filter((value) => value && value.trim()).map((value) => value.trim()))].sort((first, second) =>
+    first.localeCompare(second)
+  )
 }
 
 function createEmptyItemForm() {

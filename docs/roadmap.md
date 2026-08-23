@@ -26,6 +26,7 @@
 - Checksum duplicate detection.
 - ISBN lookup for books.
 - Better taxonomy for conflicts, battles, theatres, units, and factions.
+- Reusable location roots and path templates for repeated folder/shelf structures.
 
 ## Milestone 3: Rich Media Awareness
 
