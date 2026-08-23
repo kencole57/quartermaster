@@ -43,7 +43,8 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 - [x] Read starter catalog/tag data from Supabase on the dashboard.
 - [ ] Create catalog item list view.
 - [ ] Create catalog item detail view.
-- [ ] Create add/edit catalog item form.
+- [x] Create add catalog item form.
+- [ ] Create edit catalog item form.
 - [ ] Support item types: package, book, document, STL model, map, photo, reference, other.
 - [ ] Add creator list and creator CRUD.
 - [ ] Add file metadata list for an item.

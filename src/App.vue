@@ -8,7 +8,14 @@
           <div class="brand-title">Quartermaster</div>
         </div>
         <v-spacer />
-        <v-btn v-if="session" icon="mdi-plus" color="primary" variant="tonal" aria-label="Add item" />
+        <v-btn
+          v-if="session"
+          icon="mdi-plus"
+          color="primary"
+          variant="tonal"
+          aria-label="Add item"
+          @click="openAddItemDialog"
+        />
       </v-app-bar>
 
       <v-navigation-drawer
@@ -119,7 +126,15 @@
               >
                 Sign In
               </v-btn>
-              <v-btn v-if="session" color="primary" prepend-icon="mdi-plus" class="desktop-action">Add Item</v-btn>
+              <v-btn
+                v-if="session"
+                color="primary"
+                prepend-icon="mdi-plus"
+                class="desktop-action"
+                @click="openAddItemDialog"
+              >
+                Add Item
+              </v-btn>
             </div>
           </section>
 
@@ -188,7 +203,11 @@
                 icon="mdi-archive-plus-outline"
                 title="No catalog items yet"
                 text="Add the first book, document, package, model, map, or reference item."
-              />
+              >
+                <template #actions>
+                  <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddItemDialog">Add Item</v-btn>
+                </template>
+              </v-empty-state>
               <v-skeleton-loader v-else-if="catalogLoading" type="table" />
               <div v-else-if="catalogViewMode === 'table'" class="table-scroll">
                 <v-table>
@@ -270,6 +289,87 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="itemDialogOpen" max-width="720">
+      <v-card class="item-dialog-card">
+        <v-card-title>Add Catalog Item</v-card-title>
+        <v-card-text>
+          <v-alert v-if="itemError" type="error" variant="tonal" class="panel-alert">
+            {{ itemError }}
+          </v-alert>
+
+          <v-form @submit.prevent="createCatalogItem">
+            <div class="item-form-grid">
+              <v-text-field
+                v-model="itemForm.title"
+                label="Title"
+                prepend-inner-icon="mdi-format-title"
+                variant="outlined"
+                :disabled="itemSaving"
+                required
+              />
+              <v-select
+                v-model="itemForm.item_type"
+                label="Type"
+                :items="itemTypes"
+                item-title="label"
+                item-value="value"
+                prepend-inner-icon="mdi-shape-outline"
+                variant="outlined"
+                :disabled="itemSaving"
+              />
+              <v-select
+                v-model="itemForm.historical_period_id"
+                label="Period"
+                :items="periodOptions"
+                item-title="name"
+                item-value="id"
+                prepend-inner-icon="mdi-timeline-clock-outline"
+                variant="outlined"
+                clearable
+                :disabled="itemSaving || taxonomyLoading"
+              />
+              <v-select
+                v-model="itemForm.conflict_id"
+                label="Conflict"
+                :items="conflictOptions"
+                item-title="name"
+                item-value="id"
+                prepend-inner-icon="mdi-map-marker-distance"
+                variant="outlined"
+                clearable
+                :disabled="itemSaving || taxonomyLoading"
+              />
+              <v-select
+                v-model="itemForm.visibility"
+                label="Visibility"
+                :items="visibilityOptions"
+                item-title="label"
+                item-value="value"
+                prepend-inner-icon="mdi-eye-outline"
+                variant="outlined"
+                :disabled="itemSaving"
+              />
+            </div>
+            <v-textarea
+              v-model="itemForm.description"
+              label="Description"
+              prepend-inner-icon="mdi-text-box-outline"
+              variant="outlined"
+              rows="4"
+              auto-grow
+              :disabled="itemSaving"
+            />
+            <div class="dialog-actions">
+              <v-btn variant="text" :disabled="itemSaving" @click="itemDialogOpen = false">Cancel</v-btn>
+              <v-btn color="primary" prepend-icon="mdi-content-save-outline" type="submit" :loading="itemSaving">
+                Save Item
+              </v-btn>
+            </div>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -294,6 +394,35 @@ const catalogLoading = ref(false)
 const tagsLoading = ref(false)
 const catalogError = ref('')
 const tagsError = ref('')
+const taxonomyTerms = ref([])
+const taxonomyLoading = ref(false)
+const itemDialogOpen = ref(false)
+const itemSaving = ref(false)
+const itemError = ref('')
+const itemForm = ref(createEmptyItemForm())
+
+const itemTypes = [
+  { label: 'Package', value: 'package' },
+  { label: 'Book', value: 'book' },
+  { label: 'Document', value: 'document' },
+  { label: 'STL model', value: 'stl_model' },
+  { label: 'CAD model', value: 'cad_model' },
+  { label: 'Map', value: 'map' },
+  { label: 'Photo', value: 'photo' },
+  { label: 'Rules', value: 'rules' },
+  { label: 'Scenario', value: 'scenario' },
+  { label: 'Reference', value: 'reference' },
+  { label: 'Other', value: 'other' },
+]
+
+const visibilityOptions = [
+  { label: 'Private', value: 'private' },
+  { label: 'Shared', value: 'shared' },
+  { label: 'Public candidate', value: 'public_candidate' },
+]
+
+const periodOptions = computed(() => taxonomyTerms.value.filter((term) => term.term_type === 'historical_period'))
+const conflictOptions = computed(() => taxonomyTerms.value.filter((term) => term.term_type === 'conflict'))
 
 const recentItems = computed(() =>
   catalogItems.value.map((item) => ({
@@ -335,7 +464,7 @@ onMounted(async () => {
 })
 
 async function loadDashboardData() {
-  await Promise.all([loadCatalogItems(), loadTags()])
+  await Promise.all([loadCatalogItems(), loadTags(), loadTaxonomyTerms()])
 }
 
 async function loadCatalogItems() {
@@ -386,6 +515,67 @@ async function loadTags() {
   tags.value = (data || []).map((tag) => tag.name)
 }
 
+async function loadTaxonomyTerms() {
+  taxonomyLoading.value = true
+
+  const { data, error } = await supabase
+    .schema('catalog')
+    .from('taxonomy_terms')
+    .select('id, term_type, name')
+    .in('term_type', ['historical_period', 'conflict'])
+    .order('term_type', { ascending: true })
+    .order('name', { ascending: true })
+
+  taxonomyLoading.value = false
+
+  if (error) {
+    itemError.value = error.message
+    return
+  }
+
+  taxonomyTerms.value = data || []
+}
+
+function openAddItemDialog() {
+  itemForm.value = createEmptyItemForm()
+  itemError.value = ''
+  itemDialogOpen.value = true
+}
+
+async function createCatalogItem() {
+  if (!itemForm.value.title.trim()) {
+    itemError.value = 'Title is required.'
+    return
+  }
+
+  itemSaving.value = true
+  itemError.value = ''
+
+  const payload = {
+    title: itemForm.value.title.trim(),
+    item_type: itemForm.value.item_type,
+    description: itemForm.value.description.trim() || null,
+    historical_period_id: itemForm.value.historical_period_id || null,
+    conflict_id: itemForm.value.conflict_id || null,
+    visibility: itemForm.value.visibility,
+    created_by: session.value.user.id,
+  }
+
+  const { error } = await supabase.schema('catalog').from('items').insert(payload)
+
+  itemSaving.value = false
+
+  if (error) {
+    itemError.value = error.message
+    return
+  }
+
+  itemDialogOpen.value = false
+  authMessageType.value = 'success'
+  authMessage.value = 'Catalog item added.'
+  await loadCatalogItems()
+}
+
 async function sendMagicLink() {
   authLoading.value = true
   authMessage.value = ''
@@ -429,6 +619,17 @@ function formatItemType(value) {
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
+}
+
+function createEmptyItemForm() {
+  return {
+    title: '',
+    item_type: 'document',
+    description: '',
+    historical_period_id: null,
+    conflict_id: null,
+    visibility: 'private',
+  }
 }
 </script>
 

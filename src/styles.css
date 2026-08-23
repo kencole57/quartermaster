@@ -176,6 +176,26 @@ body {
   border-radius: 8px;
 }
 
+.item-dialog-card {
+  border-radius: 8px;
+}
+
+.item-form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.item-form-grid > :first-child {
+  grid-column: 1 / -1;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 .auth-copy {
   color: #5c686d;
   margin: 0 0 18px;
@@ -333,6 +353,10 @@ body {
     align-items: stretch;
     flex-direction: column;
     width: 100%;
+  }
+
+  .item-form-grid {
+    grid-template-columns: 1fr;
   }
 
   .topbar h1 {
