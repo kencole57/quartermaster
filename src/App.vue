@@ -80,11 +80,24 @@
 
           <section class="content-grid">
             <v-card variant="flat" class="panel-card recent-panel">
-              <div class="panel-heading">
+              <div class="panel-heading panel-heading-responsive">
                 <h2>Recent Catalog Items</h2>
-                <v-btn icon="mdi-arrow-right" variant="text" aria-label="Open catalog" />
+                <div class="panel-actions">
+                  <v-btn-toggle
+                    v-model="catalogViewMode"
+                    mandatory
+                    divided
+                    density="comfortable"
+                    variant="outlined"
+                    aria-label="Catalog view mode"
+                  >
+                    <v-btn value="table" icon="mdi-table" aria-label="Table view" />
+                    <v-btn value="list" icon="mdi-format-list-bulleted" aria-label="List view" />
+                  </v-btn-toggle>
+                  <v-btn icon="mdi-arrow-right" variant="text" aria-label="Open catalog" />
+                </div>
               </div>
-              <div class="table-scroll">
+              <div v-if="catalogViewMode === 'table'" class="table-scroll">
                 <v-table>
                   <thead>
                     <tr>
@@ -103,6 +116,16 @@
                     </tr>
                   </tbody>
                 </v-table>
+              </div>
+              <div v-else class="mobile-item-list">
+                <button v-for="item in recentItems" :key="item.title" class="mobile-item-card" type="button">
+                  <span class="mobile-item-title">{{ item.title }}</span>
+                  <span class="mobile-item-meta">{{ item.type }} - {{ item.topic }}</span>
+                  <span class="mobile-item-location">
+                    <v-icon icon="mdi-folder-marker-outline" size="18" />
+                    {{ item.location }}
+                  </span>
+                </button>
               </div>
             </v-card>
 
@@ -129,6 +152,7 @@ import { useDisplay } from 'vuetify'
 const { mdAndDown } = useDisplay()
 const mobile = computed(() => mdAndDown.value)
 const drawerOpen = ref(!mobile.value)
+const catalogViewMode = ref(mobile.value ? 'list' : 'table')
 
 watch(mobile, (isMobile) => {
   drawerOpen.value = !isMobile
@@ -149,3 +173,7 @@ const recentItems = [
 
 const tags = ['Vietnam War', 'Battle reports', 'Cold War', 'STL', 'Books', 'Maps', 'Kickstarter', 'Australian Army']
 </script>
+
+
+
+
