@@ -80,6 +80,23 @@ If the project is not linked yet, link it before pushing migrations:
 npm run supabase -- link --project-ref vollglfitpbllbwbaulx
 ```
 
+## Exposed API Schemas
+
+The browser client reads and writes app tables through Supabase/PostgREST. Custom schemas must be exposed to the API.
+
+Required exposed schemas:
+
+```text
+public
+graphql_public
+catalog
+library
+```
+
+If the app shows `Invalid schema: catalog` or `Invalid schema: library`, check the Supabase dashboard API settings and make sure `catalog` and `library` are included in the exposed schemas list.
+
+The migration `202608230004_expose_app_schemas.sql` grants the authenticated role explicit privileges on the current `catalog` and `library` tables. Row Level Security still controls which rows a user can access.
+
 ## Responsive Checks
 
 Use Chrome DevTools device mode and follow:

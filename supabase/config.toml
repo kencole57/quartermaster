@@ -2,6 +2,8 @@ project_id = "vollglfitpbllbwbaulx"
 
 [api]
 enabled = true
+schemas = ["public", "graphql_public", "catalog", "library"]
+extra_search_path = ["public", "extensions"]
 
 [auth]
 enabled = true
