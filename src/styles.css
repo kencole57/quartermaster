@@ -1,0 +1,144 @@
+:root {
+  color: #1f2a2e;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f7f6f2;
+}
+
+.brand-panel {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  padding: 22px 18px 18px;
+}
+
+.brand-mark {
+  align-items: center;
+  background: #294c60;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  font-size: 22px;
+  font-weight: 800;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.brand-title {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.brand-subtitle {
+  color: #62727a;
+  font-size: 13px;
+}
+
+.app-shell {
+  padding: 28px;
+}
+
+.topbar {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.topbar h1 {
+  font-size: 32px;
+  line-height: 1.1;
+  margin: 0 0 6px;
+}
+
+.topbar p {
+  color: #5c686d;
+  margin: 0;
+}
+
+.search-band {
+  align-items: center;
+  background: white;
+  border: 1px solid #e2dfd7;
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(260px, 1fr) 180px 220px;
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+.metric-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  margin-bottom: 18px;
+}
+
+.metric-card {
+  align-items: center;
+  border: 1px solid #e2dfd7;
+  border-radius: 8px;
+  display: flex;
+  gap: 14px;
+  min-height: 88px;
+  padding: 18px;
+}
+
+.metric-value {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.metric-label {
+  color: #62727a;
+  font-size: 13px;
+}
+
+.content-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(420px, 1fr) 360px;
+}
+
+.panel-card {
+  border: 1px solid #e2dfd7;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.panel-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.panel-heading h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (max-width: 980px) {
+  .search-band,
+  .metric-grid,
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    gap: 14px;
+    flex-direction: column;
+  }
+}
