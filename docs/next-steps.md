@@ -22,7 +22,7 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 - [x] Add local Supabase project config.
 - [x] Add initial `catalog` and `library` schema migration.
 - [x] Add initial RLS policies.
-- [ ] Confirm Supabase GitHub integration settings.
+- [x] Confirm Supabase GitHub integration settings.
 - [x] Link local Supabase CLI to the remote project.
 - [x] Apply initial migration to the remote Supabase project.
 - [x] Confirm migration history on the remote Supabase project.
@@ -33,7 +33,7 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 
 - [x] Add sign-in/sign-out UI.
 - [x] Add profile bootstrap flow.
-- [ ] Add authenticated route guard.
+- [x] Add authenticated route guard.
 - [x] Show current user/account state in the app shell.
 
 ## Catalog MVP

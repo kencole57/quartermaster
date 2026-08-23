@@ -60,7 +60,47 @@
       </v-navigation-drawer>
 
       <v-main>
-        <v-container fluid class="app-shell">
+        <v-container v-if="!session" fluid class="auth-shell">
+          <section class="auth-hero">
+            <div class="auth-hero-copy">
+              <div class="brand-mark">Q</div>
+              <h1>Quartermaster</h1>
+              <p>Sign in to manage your historical research, wargaming assets, books, files, and locations.</p>
+            </div>
+
+            <v-card variant="flat" class="auth-panel">
+              <h2>Sign In</h2>
+              <p class="auth-copy">
+                Enter your email and Supabase will send a magic link for Quartermaster.
+              </p>
+              <v-form @submit.prevent="sendMagicLink">
+                <v-text-field
+                  v-model="email"
+                  label="Email"
+                  type="email"
+                  prepend-inner-icon="mdi-email-outline"
+                  variant="outlined"
+                  autocomplete="email"
+                  :disabled="authLoading"
+                />
+                <v-btn
+                  block
+                  color="primary"
+                  prepend-icon="mdi-email-fast-outline"
+                  type="submit"
+                  :loading="authLoading"
+                >
+                  Send Magic Link
+                </v-btn>
+              </v-form>
+              <v-alert v-if="authMessage" class="auth-alert-inline" :type="authMessageType" variant="tonal">
+                {{ authMessage }}
+              </v-alert>
+            </v-card>
+          </section>
+        </v-container>
+
+        <v-container v-else fluid class="app-shell">
           <section class="topbar">
             <div>
               <h1>Quartermaster</h1>

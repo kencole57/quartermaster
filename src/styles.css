@@ -56,6 +56,47 @@ body {
   padding: 28px;
 }
 
+.auth-shell {
+  min-height: 100vh;
+  padding: 28px;
+}
+
+.auth-hero {
+  align-items: center;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(260px, 1fr) minmax(320px, 420px);
+  min-height: calc(100vh - 56px);
+}
+
+.auth-hero-copy {
+  max-width: 620px;
+}
+
+.auth-hero-copy h1 {
+  font-size: 44px;
+  line-height: 1.05;
+  margin: 24px 0 12px;
+}
+
+.auth-hero-copy p {
+  color: #5c686d;
+  font-size: 18px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.auth-panel {
+  border: 1px solid #e2dfd7;
+  border-radius: 8px;
+  padding: 22px;
+}
+
+.auth-panel h2 {
+  font-size: 22px;
+  margin: 0 0 8px;
+}
+
 .topbar {
   align-items: center;
   display: flex;
@@ -94,6 +135,10 @@ body {
 
 .auth-alert {
   margin-bottom: 18px;
+}
+
+.auth-alert-inline {
+  margin-top: 16px;
 }
 
 .drawer-account {
@@ -254,6 +299,21 @@ body {
     padding: 18px;
   }
 
+  .auth-shell {
+    padding: 18px;
+  }
+
+  .auth-hero {
+    align-items: start;
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-top: 24px;
+  }
+
+  .auth-hero-copy h1 {
+    font-size: 34px;
+  }
+
   .desktop-action {
     display: none;
   }
@@ -296,6 +356,23 @@ body {
 
   .app-shell {
     padding: 14px;
+  }
+
+  .auth-shell {
+    padding: 14px;
+  }
+
+  .auth-hero {
+    gap: 18px;
+    padding-top: 12px;
+  }
+
+  .auth-hero-copy h1 {
+    font-size: 30px;
+  }
+
+  .auth-hero-copy p {
+    font-size: 15px;
   }
 
   .topbar h1 {
