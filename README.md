@@ -28,8 +28,10 @@ Quartermaster is the current working name. It fits digital assets, books, docume
 
 ## Project Notes
 
+- [Next steps](docs/next-steps.md)
 - [Product notes](docs/product-notes.md)
 - [Initial data model](docs/data-model.md)
 - [Roadmap](docs/roadmap.md)
 - [Mobile and responsive testing](docs/responsive-testing.md)
+
 
