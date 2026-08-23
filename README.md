@@ -25,3 +25,11 @@ Its first purpose is not to store files. It helps users know what they own, what
 ## Working Name
 
 Quartermaster is the current working name. It fits digital assets, books, documents, miniatures, and research collections without making the app sound STL-only.
+
+## Project Notes
+
+- [Product notes](docs/product-notes.md)
+- [Initial data model](docs/data-model.md)
+- [Roadmap](docs/roadmap.md)
+- [Mobile and responsive testing](docs/responsive-testing.md)
+
