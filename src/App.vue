@@ -329,7 +329,13 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="item in catalogRows" :key="item.id">
+                    <tr
+                      v-for="item in catalogRows"
+                      :key="item.id"
+                      class="clickable-row"
+                      :class="{ 'selected-row': selectedCatalogItemId === item.id }"
+                      @click="selectCatalogItem(item.id)"
+                    >
                       <td>{{ item.title }}</td>
                       <td>{{ item.type }}</td>
                       <td>{{ item.topic }}</td>
@@ -340,7 +346,14 @@
                 </v-table>
               </div>
               <div v-else class="mobile-item-list">
-                <button v-for="item in catalogRows" :key="item.id" class="mobile-item-card" type="button">
+                <button
+                  v-for="item in catalogRows"
+                  :key="item.id"
+                  class="mobile-item-card"
+                  :class="{ 'selected-item-card': selectedCatalogItemId === item.id }"
+                  type="button"
+                  @click="selectCatalogItem(item.id)"
+                >
                   <span class="mobile-item-title">{{ item.title }}</span>
                   <span class="mobile-item-meta">{{ item.type }} - {{ item.topic }}</span>
                   <span class="mobile-item-location">
@@ -348,6 +361,42 @@
                     {{ item.visibility }}
                   </span>
                 </button>
+              </div>
+            </v-card>
+
+            <v-card v-if="selectedCatalogItem" variant="flat" class="panel-card detail-panel">
+              <div class="panel-heading">
+                <h2>{{ selectedCatalogItem.title }}</h2>
+                <v-btn icon="mdi-close" variant="text" aria-label="Close item detail" @click="clearSelectedCatalogItem" />
+              </div>
+
+              <div class="detail-meta-grid">
+                <div>
+                  <span class="detail-label">Type</span>
+                  <strong>{{ selectedCatalogItem.type }}</strong>
+                </div>
+                <div>
+                  <span class="detail-label">Topic</span>
+                  <strong>{{ selectedCatalogItem.topic }}</strong>
+                </div>
+                <div>
+                  <span class="detail-label">Visibility</span>
+                  <strong>{{ selectedCatalogItem.visibility }}</strong>
+                </div>
+                <div>
+                  <span class="detail-label">Created</span>
+                  <strong>{{ selectedCatalogItem.created }}</strong>
+                </div>
+              </div>
+
+              <div class="detail-description">
+                <span class="detail-label">Description</span>
+                <p>{{ selectedCatalogItem.description || 'No description yet.' }}</p>
+              </div>
+
+              <div class="detail-actions">
+                <v-btn prepend-icon="mdi-pencil-outline" variant="outlined">Edit</v-btn>
+                <v-btn prepend-icon="mdi-folder-marker-outline" variant="outlined">Add Location</v-btn>
               </div>
             </v-card>
           </section>
@@ -481,6 +530,7 @@ const catalogViewMode = ref(mobile.value ? 'list' : 'table')
 const activeSection = ref('dashboard')
 const catalogSearch = ref('')
 const catalogTypeFilter = ref('any')
+const selectedCatalogItemId = ref(null)
 const authDialogOpen = ref(false)
 const authLoading = ref(false)
 const authMessage = ref('')
@@ -550,6 +600,10 @@ const catalogRows = computed(() => {
       )
     })
 })
+
+const selectedCatalogItem = computed(() =>
+  catalogRows.value.find((item) => item.id === selectedCatalogItemId.value) || null
+)
 
 const metrics = computed(() => [
   { label: 'Catalog items', value: String(catalogItems.value.length), icon: 'mdi-archive-outline' },
@@ -673,6 +727,14 @@ function setActiveSection(section) {
   if (mobile.value) {
     drawerOpen.value = false
   }
+}
+
+function selectCatalogItem(itemId) {
+  selectedCatalogItemId.value = itemId
+}
+
+function clearSelectedCatalogItem() {
+  selectedCatalogItemId.value = null
 }
 
 async function createCatalogItem() {
