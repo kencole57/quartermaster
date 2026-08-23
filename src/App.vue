@@ -124,18 +124,6 @@
               <p>{{ sectionSubtitle }}</p>
             </div>
             <div class="topbar-actions">
-              <v-chip v-if="session" prepend-icon="mdi-account-circle-outline" variant="tonal" color="primary">
-                {{ session.user.email }}
-              </v-chip>
-              <v-btn
-                v-else
-                variant="outlined"
-                prepend-icon="mdi-login"
-                class="desktop-action"
-                @click="authDialogOpen = true"
-              >
-                Sign In
-              </v-btn>
               <v-btn
                 v-if="session"
                 color="primary"
