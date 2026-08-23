@@ -35,9 +35,12 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 - [x] Add profile bootstrap flow.
 - [x] Add authenticated route guard.
 - [x] Show current user/account state in the app shell.
+- [x] Verify magic-link sign-in and profile creation.
+- [ ] Add profile display name editing.
 
 ## Catalog MVP
 
+- [x] Read starter catalog/tag data from Supabase on the dashboard.
 - [ ] Create catalog item list view.
 - [ ] Create catalog item detail view.
 - [ ] Create add/edit catalog item form.

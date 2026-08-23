@@ -180,7 +180,17 @@
                   <v-btn icon="mdi-arrow-right" variant="text" aria-label="Open catalog" />
                 </div>
               </div>
-              <div v-if="catalogViewMode === 'table'" class="table-scroll">
+              <v-alert v-if="catalogError" type="error" variant="tonal" class="panel-alert">
+                {{ catalogError }}
+              </v-alert>
+              <v-empty-state
+                v-else-if="!catalogLoading && recentItems.length === 0"
+                icon="mdi-archive-plus-outline"
+                title="No catalog items yet"
+                text="Add the first book, document, package, model, map, or reference item."
+              />
+              <v-skeleton-loader v-else-if="catalogLoading" type="table" />
+              <div v-else-if="catalogViewMode === 'table'" class="table-scroll">
                 <v-table>
                   <thead>
                     <tr>
@@ -217,6 +227,10 @@
                 <h2>Tags To Prove Out</h2>
                 <v-btn icon="mdi-tune" variant="text" aria-label="Manage tags" />
               </div>
+              <v-alert v-if="tagsError" type="error" variant="tonal" class="panel-alert">
+                {{ tagsError }}
+              </v-alert>
+              <v-skeleton-loader v-else-if="tagsLoading" type="chip, chip, chip, chip" />
               <div class="tag-cloud">
                 <v-chip v-for="tag in tags" :key="tag" variant="tonal" color="primary">{{ tag }}</v-chip>
               </div>
@@ -274,6 +288,28 @@ const authMessage = ref('')
 const authMessageType = ref('info')
 const email = ref('')
 const session = ref(null)
+const catalogItems = ref([])
+const tags = ref([])
+const catalogLoading = ref(false)
+const tagsLoading = ref(false)
+const catalogError = ref('')
+const tagsError = ref('')
+
+const recentItems = computed(() =>
+  catalogItems.value.map((item) => ({
+    title: item.title,
+    type: formatItemType(item.item_type),
+    topic: item.conflict?.name || item.historical_period?.name || 'Unassigned',
+    location: 'No location yet',
+  }))
+)
+
+const metrics = computed(() => [
+  { label: 'Catalog items', value: String(catalogItems.value.length), icon: 'mdi-archive-outline' },
+  { label: 'Known locations', value: '0', icon: 'mdi-folder-marker-outline' },
+  { label: 'Creators', value: '0', icon: 'mdi-account-group-outline' },
+  { label: 'Tags', value: String(tags.value.length), icon: 'mdi-tag-outline' },
+])
 
 watch(mobile, (isMobile) => {
   drawerOpen.value = !isMobile
@@ -282,12 +318,73 @@ watch(mobile, (isMobile) => {
 onMounted(async () => {
   const { data } = await supabase.auth.getSession()
   session.value = data.session
+  if (data.session) {
+    await loadDashboardData()
+  }
 
   supabase.auth.onAuthStateChange((_event, newSession) => {
     session.value = newSession
     authDialogOpen.value = false
+    if (newSession) {
+      loadDashboardData()
+    } else {
+      catalogItems.value = []
+      tags.value = []
+    }
   })
 })
+
+async function loadDashboardData() {
+  await Promise.all([loadCatalogItems(), loadTags()])
+}
+
+async function loadCatalogItems() {
+  catalogLoading.value = true
+  catalogError.value = ''
+
+  const { data, error } = await supabase
+    .schema('catalog')
+    .from('items')
+    .select(`
+      id,
+      title,
+      item_type,
+      created_at,
+      historical_period:historical_period_id(name),
+      conflict:conflict_id(name)
+    `)
+    .order('created_at', { ascending: false })
+    .limit(8)
+
+  catalogLoading.value = false
+
+  if (error) {
+    catalogError.value = error.message
+    return
+  }
+
+  catalogItems.value = data || []
+}
+
+async function loadTags() {
+  tagsLoading.value = true
+  tagsError.value = ''
+
+  const { data, error } = await supabase
+    .schema('catalog')
+    .from('tags')
+    .select('name')
+    .order('name', { ascending: true })
+
+  tagsLoading.value = false
+
+  if (error) {
+    tagsError.value = error.message
+    return
+  }
+
+  tags.value = (data || []).map((tag) => tag.name)
+}
 
 async function sendMagicLink() {
   authLoading.value = true
@@ -327,20 +424,12 @@ async function signOut() {
   authMessage.value = 'Signed out.'
 }
 
-const metrics = [
-  { label: 'Catalog items', value: '0', icon: 'mdi-archive-outline' },
-  { label: 'Known locations', value: '0', icon: 'mdi-folder-marker-outline' },
-  { label: 'Creators', value: '0', icon: 'mdi-account-group-outline' },
-  { label: 'Tags', value: '0', icon: 'mdi-tag-outline' },
-]
-
-const recentItems = [
-  { title: 'Battle of Nui Le report', type: 'Document', topic: 'Vietnam War', location: 'To add' },
-  { title: 'Cold War Germans', type: 'Package', topic: 'Cold War', location: 'To add' },
-  { title: 'Panzer IV Ausf. H', type: 'STL model', topic: 'Second World War', location: 'To add' },
-]
-
-const tags = ['Vietnam War', 'Battle reports', 'Cold War', 'STL', 'Books', 'Maps', 'Kickstarter', 'Australian Army']
+function formatItemType(value) {
+  return value
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
 </script>
 
 

@@ -137,6 +137,10 @@ body {
   margin-bottom: 18px;
 }
 
+.panel-alert {
+  margin-bottom: 12px;
+}
+
 .auth-alert-inline {
   margin-top: 16px;
 }
