@@ -199,10 +199,18 @@
                     variant="outlined"
                     aria-label="Catalog view mode"
                   >
-                    <v-btn value="table" icon="mdi-table" aria-label="Table view" />
-                    <v-btn value="list" icon="mdi-format-list-bulleted" aria-label="List view" />
+                    <v-tooltip text="Table view">
+                      <template #activator="{ props }">
+                        <v-btn v-bind="props" value="table" icon="mdi-table" aria-label="Table view" />
+                      </template>
+                    </v-tooltip>
+                    <v-tooltip text="List view">
+                      <template #activator="{ props }">
+                        <v-btn v-bind="props" value="list" icon="mdi-format-list-bulleted" aria-label="List view" />
+                      </template>
+                    </v-tooltip>
                   </v-btn-toggle>
-                  <v-btn icon="mdi-arrow-right" variant="text" aria-label="Open catalog" />
+                  <v-btn icon="mdi-arrow-right" variant="text" aria-label="Open catalog" @click="setActiveSection('catalog')" />
                 </div>
               </div>
               <v-alert v-if="catalogError" type="error" variant="tonal" class="panel-alert">
@@ -230,7 +238,12 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="item in recentItems" :key="item.title">
+                    <tr
+                      v-for="item in recentItems"
+                      :key="item.id"
+                      class="clickable-row"
+                      @click="openCatalogItem(item.id)"
+                    >
                       <td>{{ item.title }}</td>
                       <td>{{ item.type }}</td>
                       <td>{{ item.topic }}</td>
@@ -240,7 +253,13 @@
                 </v-table>
               </div>
               <div v-else class="mobile-item-list">
-                <button v-for="item in recentItems" :key="item.title" class="mobile-item-card" type="button">
+                <button
+                  v-for="item in recentItems"
+                  :key="item.id"
+                  class="mobile-item-card"
+                  type="button"
+                  @click="openCatalogItem(item.id)"
+                >
                   <span class="mobile-item-title">{{ item.title }}</span>
                   <span class="mobile-item-meta">{{ item.type }} - {{ item.topic }}</span>
                   <span class="mobile-item-location">
@@ -279,8 +298,16 @@
                     variant="outlined"
                     aria-label="Catalog view mode"
                   >
-                    <v-btn value="table" icon="mdi-table" aria-label="Table view" />
-                    <v-btn value="list" icon="mdi-format-list-bulleted" aria-label="List view" />
+                    <v-tooltip text="Table view">
+                      <template #activator="{ props }">
+                        <v-btn v-bind="props" value="table" icon="mdi-table" aria-label="Table view" />
+                      </template>
+                    </v-tooltip>
+                    <v-tooltip text="List view">
+                      <template #activator="{ props }">
+                        <v-btn v-bind="props" value="list" icon="mdi-format-list-bulleted" aria-label="List view" />
+                      </template>
+                    </v-tooltip>
                   </v-btn-toggle>
                   <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddItemDialog">Add Item</v-btn>
                 </div>
@@ -575,6 +602,7 @@ const conflictOptions = computed(() => taxonomyTerms.value.filter((term) => term
 
 const recentItems = computed(() =>
   catalogRows.value.slice(0, 8).map((item) => ({
+    id: item.id,
     title: item.title,
     type: item.type,
     topic: item.topic,
@@ -730,6 +758,11 @@ function setActiveSection(section) {
 }
 
 function selectCatalogItem(itemId) {
+  selectedCatalogItemId.value = itemId
+}
+
+function openCatalogItem(itemId) {
+  activeSection.value = 'catalog'
   selectedCatalogItemId.value = itemId
 }
 
