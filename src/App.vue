@@ -33,8 +33,18 @@
         </div>
 
         <v-list nav density="comfortable">
-          <v-list-item prepend-icon="mdi-view-dashboard-outline" title="Dashboard" active />
-          <v-list-item prepend-icon="mdi-archive-search-outline" title="Catalog" />
+          <v-list-item
+            prepend-icon="mdi-view-dashboard-outline"
+            title="Dashboard"
+            :active="activeSection === 'dashboard'"
+            @click="setActiveSection('dashboard')"
+          />
+          <v-list-item
+            prepend-icon="mdi-archive-search-outline"
+            title="Catalog"
+            :active="activeSection === 'catalog'"
+            @click="setActiveSection('catalog')"
+          />
           <v-list-item prepend-icon="mdi-bookshelf" title="Library" />
           <v-list-item prepend-icon="mdi-tag-multiple-outline" title="Tags" />
           <v-list-item prepend-icon="mdi-map-search-outline" title="Research" />
@@ -110,8 +120,8 @@
         <v-container v-else fluid class="app-shell">
           <section class="topbar">
             <div>
-              <h1>Quartermaster</h1>
-              <p>Track what you have, what it describes, and where your copy lives.</p>
+              <h1>{{ sectionTitle }}</h1>
+              <p>{{ sectionSubtitle }}</p>
             </div>
             <div class="topbar-actions">
               <v-chip v-if="session" prepend-icon="mdi-account-circle-outline" variant="tonal" color="primary">
@@ -142,7 +152,7 @@
             {{ authMessage }}
           </v-alert>
 
-          <section class="search-band">
+          <section v-if="activeSection === 'dashboard'" class="search-band">
             <v-text-field
               prepend-inner-icon="mdi-magnify"
               label="Search assets, books, documents, packages, creators, tags"
@@ -166,7 +176,7 @@
             />
           </section>
 
-          <section class="metric-grid">
+          <section v-if="activeSection === 'dashboard'" class="metric-grid">
             <v-card v-for="metric in metrics" :key="metric.label" variant="flat" class="metric-card">
               <v-icon :icon="metric.icon" size="30" />
               <div>
@@ -176,7 +186,7 @@
             </v-card>
           </section>
 
-          <section class="content-grid">
+          <section v-if="activeSection === 'dashboard'" class="content-grid">
             <v-card variant="flat" class="panel-card recent-panel">
               <div class="panel-heading panel-heading-responsive">
                 <h2>Recent Catalog Items</h2>
@@ -252,6 +262,92 @@
               <v-skeleton-loader v-else-if="tagsLoading" type="chip, chip, chip, chip" />
               <div class="tag-cloud">
                 <v-chip v-for="tag in tags" :key="tag" variant="tonal" color="primary">{{ tag }}</v-chip>
+              </div>
+            </v-card>
+          </section>
+
+          <section v-else-if="activeSection === 'catalog'" class="catalog-section">
+            <v-card variant="flat" class="panel-card">
+              <div class="panel-heading panel-heading-responsive">
+                <h2>Catalog Items</h2>
+                <div class="panel-actions">
+                  <v-btn-toggle
+                    v-model="catalogViewMode"
+                    mandatory
+                    divided
+                    density="comfortable"
+                    variant="outlined"
+                    aria-label="Catalog view mode"
+                  >
+                    <v-btn value="table" icon="mdi-table" aria-label="Table view" />
+                    <v-btn value="list" icon="mdi-format-list-bulleted" aria-label="List view" />
+                  </v-btn-toggle>
+                  <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddItemDialog">Add Item</v-btn>
+                </div>
+              </div>
+
+              <div class="catalog-filters">
+                <v-text-field
+                  v-model="catalogSearch"
+                  prepend-inner-icon="mdi-magnify"
+                  label="Search catalog"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                />
+                <v-select
+                  v-model="catalogTypeFilter"
+                  label="Type"
+                  :items="catalogTypeFilterOptions"
+                  item-title="label"
+                  item-value="value"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                />
+              </div>
+
+              <v-alert v-if="catalogError" type="error" variant="tonal" class="panel-alert">
+                {{ catalogError }}
+              </v-alert>
+              <v-empty-state
+                v-else-if="!catalogLoading && catalogRows.length === 0"
+                icon="mdi-archive-plus-outline"
+                title="No matching catalog items"
+                text="Add an item or adjust the filters."
+              />
+              <v-skeleton-loader v-else-if="catalogLoading" type="table" />
+              <div v-else-if="catalogViewMode === 'table'" class="table-scroll">
+                <v-table>
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Type</th>
+                      <th>Topic</th>
+                      <th>Visibility</th>
+                      <th>Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in catalogRows" :key="item.id">
+                      <td>{{ item.title }}</td>
+                      <td>{{ item.type }}</td>
+                      <td>{{ item.topic }}</td>
+                      <td>{{ item.visibility }}</td>
+                      <td>{{ item.created }}</td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </div>
+              <div v-else class="mobile-item-list">
+                <button v-for="item in catalogRows" :key="item.id" class="mobile-item-card" type="button">
+                  <span class="mobile-item-title">{{ item.title }}</span>
+                  <span class="mobile-item-meta">{{ item.type }} - {{ item.topic }}</span>
+                  <span class="mobile-item-location">
+                    <v-icon icon="mdi-eye-outline" size="18" />
+                    {{ item.visibility }}
+                  </span>
+                </button>
               </div>
             </v-card>
           </section>
@@ -382,6 +478,9 @@ const { mdAndDown } = useDisplay()
 const mobile = computed(() => mdAndDown.value)
 const drawerOpen = ref(!mobile.value)
 const catalogViewMode = ref(mobile.value ? 'list' : 'table')
+const activeSection = ref('dashboard')
+const catalogSearch = ref('')
+const catalogTypeFilter = ref('any')
 const authDialogOpen = ref(false)
 const authLoading = ref(false)
 const authMessage = ref('')
@@ -425,13 +524,32 @@ const periodOptions = computed(() => taxonomyTerms.value.filter((term) => term.t
 const conflictOptions = computed(() => taxonomyTerms.value.filter((term) => term.term_type === 'conflict'))
 
 const recentItems = computed(() =>
-  catalogItems.value.map((item) => ({
+  catalogRows.value.slice(0, 8).map((item) => ({
     title: item.title,
-    type: formatItemType(item.item_type),
-    topic: item.conflict?.name || item.historical_period?.name || 'Unassigned',
+    type: item.type,
+    topic: item.topic,
     location: 'No location yet',
   }))
 )
+
+const catalogTypeFilterOptions = computed(() => [
+  { label: 'Any', value: 'any' },
+  ...itemTypes,
+])
+
+const catalogRows = computed(() => {
+  const search = catalogSearch.value.trim().toLowerCase()
+
+  return catalogItems.value
+    .map(toCatalogRow)
+    .filter((item) => catalogTypeFilter.value === 'any' || item.item_type === catalogTypeFilter.value)
+    .filter((item) => {
+      if (!search) return true
+      return [item.title, item.type, item.topic, item.description].some((value) =>
+        value.toLowerCase().includes(search)
+      )
+    })
+})
 
 const metrics = computed(() => [
   { label: 'Catalog items', value: String(catalogItems.value.length), icon: 'mdi-archive-outline' },
@@ -439,6 +557,13 @@ const metrics = computed(() => [
   { label: 'Creators', value: '0', icon: 'mdi-account-group-outline' },
   { label: 'Tags', value: String(tags.value.length), icon: 'mdi-tag-outline' },
 ])
+
+const sectionTitle = computed(() => (activeSection.value === 'catalog' ? 'Catalog' : 'Quartermaster'))
+const sectionSubtitle = computed(() =>
+  activeSection.value === 'catalog'
+    ? 'Browse and filter books, documents, packages, models, maps, and references.'
+    : 'Track what you have, what it describes, and where your copy lives.'
+)
 
 watch(mobile, (isMobile) => {
   drawerOpen.value = !isMobile
@@ -477,13 +602,14 @@ async function loadCatalogItems() {
     .select(`
       id,
       title,
+      description,
       item_type,
+      visibility,
       created_at,
       historical_period:historical_period_id(name),
       conflict:conflict_id(name)
     `)
     .order('created_at', { ascending: false })
-    .limit(8)
 
   catalogLoading.value = false
 
@@ -540,6 +666,13 @@ function openAddItemDialog() {
   itemForm.value = createEmptyItemForm()
   itemError.value = ''
   itemDialogOpen.value = true
+}
+
+function setActiveSection(section) {
+  activeSection.value = section
+  if (mobile.value) {
+    drawerOpen.value = false
+  }
 }
 
 async function createCatalogItem() {
@@ -619,6 +752,19 @@ function formatItemType(value) {
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
+}
+
+function toCatalogRow(item) {
+  return {
+    id: item.id,
+    title: item.title,
+    description: item.description || '',
+    item_type: item.item_type,
+    type: formatItemType(item.item_type),
+    topic: item.conflict?.name || item.historical_period?.name || 'Unassigned',
+    visibility: formatItemType(item.visibility),
+    created: new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(item.created_at)),
+  }
 }
 
 function createEmptyItemForm() {

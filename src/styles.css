@@ -133,6 +133,18 @@ body {
   padding: 16px;
 }
 
+.catalog-section {
+  display: grid;
+  gap: 18px;
+}
+
+.catalog-filters {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(260px, 1fr) 220px;
+  margin-bottom: 18px;
+}
+
 .auth-alert {
   margin-bottom: 18px;
 }
@@ -364,6 +376,7 @@ body {
   }
 
   .search-band,
+  .catalog-filters,
   .metric-grid,
   .content-grid {
     grid-template-columns: 1fr;

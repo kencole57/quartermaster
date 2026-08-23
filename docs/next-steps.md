@@ -41,7 +41,7 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 ## Catalog MVP
 
 - [x] Read starter catalog/tag data from Supabase on the dashboard.
-- [ ] Create catalog item list view.
+- [x] Create catalog item list view.
 - [ ] Create catalog item detail view.
 - [x] Create add catalog item form.
 - [ ] Create edit catalog item form.
