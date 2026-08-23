@@ -422,7 +422,9 @@
               </div>
 
               <div class="detail-actions">
-                <v-btn prepend-icon="mdi-pencil-outline" variant="outlined">Edit</v-btn>
+                <v-btn prepend-icon="mdi-pencil-outline" variant="outlined" @click="openEditItemDialog(selectedCatalogItem)">
+                  Edit
+                </v-btn>
                 <v-btn prepend-icon="mdi-folder-marker-outline" variant="outlined">Add Location</v-btn>
               </div>
             </v-card>
@@ -464,13 +466,13 @@
 
     <v-dialog v-model="itemDialogOpen" max-width="720">
       <v-card class="item-dialog-card">
-        <v-card-title>Add Catalog Item</v-card-title>
+        <v-card-title>{{ itemDialogTitle }}</v-card-title>
         <v-card-text>
           <v-alert v-if="itemError" type="error" variant="tonal" class="panel-alert">
             {{ itemError }}
           </v-alert>
 
-          <v-form @submit.prevent="createCatalogItem">
+          <v-form @submit.prevent="saveCatalogItem">
             <div class="item-form-grid">
               <v-text-field
                 v-model="itemForm.title"
@@ -535,7 +537,7 @@
             <div class="dialog-actions">
               <v-btn variant="text" :disabled="itemSaving" @click="itemDialogOpen = false">Cancel</v-btn>
               <v-btn color="primary" prepend-icon="mdi-content-save-outline" type="submit" :loading="itemSaving">
-                Save Item
+                {{ itemSaveButtonLabel }}
               </v-btn>
             </div>
           </v-form>
@@ -576,6 +578,7 @@ const itemDialogOpen = ref(false)
 const itemSaving = ref(false)
 const itemError = ref('')
 const itemForm = ref(createEmptyItemForm())
+const editingItemId = ref(null)
 
 const itemTypes = [
   { label: 'Package', value: 'package' },
@@ -646,6 +649,8 @@ const sectionSubtitle = computed(() =>
     ? 'Browse and filter books, documents, packages, models, maps, and references.'
     : 'Track what you have, what it describes, and where your copy lives.'
 )
+const itemDialogTitle = computed(() => (editingItemId.value ? 'Edit Catalog Item' : 'Add Catalog Item'))
+const itemSaveButtonLabel = computed(() => (editingItemId.value ? 'Update Item' : 'Save Item'))
 
 watch(mobile, (isMobile) => {
   drawerOpen.value = !isMobile
@@ -686,6 +691,8 @@ async function loadCatalogItems() {
       title,
       description,
       item_type,
+      historical_period_id,
+      conflict_id,
       visibility,
       created_at,
       historical_period:historical_period_id(name),
@@ -745,7 +752,22 @@ async function loadTaxonomyTerms() {
 }
 
 function openAddItemDialog() {
+  editingItemId.value = null
   itemForm.value = createEmptyItemForm()
+  itemError.value = ''
+  itemDialogOpen.value = true
+}
+
+function openEditItemDialog(item) {
+  editingItemId.value = item.id
+  itemForm.value = {
+    title: item.title,
+    item_type: item.item_type,
+    description: item.description,
+    historical_period_id: item.historical_period_id,
+    conflict_id: item.conflict_id,
+    visibility: item.visibility_value,
+  }
   itemError.value = ''
   itemDialogOpen.value = true
 }
@@ -770,7 +792,7 @@ function clearSelectedCatalogItem() {
   selectedCatalogItemId.value = null
 }
 
-async function createCatalogItem() {
+async function saveCatalogItem() {
   if (!itemForm.value.title.trim()) {
     itemError.value = 'Title is required.'
     return
@@ -789,7 +811,10 @@ async function createCatalogItem() {
     created_by: session.value.user.id,
   }
 
-  const { error } = await supabase.schema('catalog').from('items').insert(payload)
+  const query = supabase.schema('catalog').from('items')
+  const { error } = editingItemId.value
+    ? await query.update(payload).eq('id', editingItemId.value)
+    : await query.insert(payload)
 
   itemSaving.value = false
 
@@ -800,7 +825,7 @@ async function createCatalogItem() {
 
   itemDialogOpen.value = false
   authMessageType.value = 'success'
-  authMessage.value = 'Catalog item added.'
+  authMessage.value = editingItemId.value ? 'Catalog item updated.' : 'Catalog item added.'
   await loadCatalogItems()
 }
 
@@ -856,7 +881,10 @@ function toCatalogRow(item) {
     description: item.description || '',
     item_type: item.item_type,
     type: formatItemType(item.item_type),
+    historical_period_id: item.historical_period_id,
+    conflict_id: item.conflict_id,
     topic: item.conflict?.name || item.historical_period?.name || 'Unassigned',
+    visibility_value: item.visibility,
     visibility: formatItemType(item.visibility),
     created: new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(item.created_at)),
   }

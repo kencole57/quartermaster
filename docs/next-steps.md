@@ -45,7 +45,7 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 - [x] Create catalog item detail view.
 - [x] Create add catalog item form.
 - [x] Verify catalog item creation from the app.
-- [ ] Create edit catalog item form.
+- [x] Create edit catalog item form.
 - [ ] Support item types: package, book, document, STL model, map, photo, reference, other.
 - [ ] Add creator list and creator CRUD.
 - [ ] Add file metadata list for an item.
