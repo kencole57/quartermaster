@@ -64,6 +64,7 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 
 - [ ] Add text search against catalog item title, subtitle, and description.
 - [ ] Add filters for item type, creator, period, conflict, theatre, faction, and tag.
+- [x] Add basic catalog sort options.
 - [ ] Add mobile-friendly search results list mode.
 - [ ] Add table mode for desktop and Surface use.
 

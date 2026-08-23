@@ -320,6 +320,16 @@
                   density="comfortable"
                   hide-details
                 />
+                <v-select
+                  v-model="catalogSortMode"
+                  label="Sort"
+                  :items="catalogSortOptions"
+                  item-title="label"
+                  item-value="value"
+                  variant="outlined"
+                  density="comfortable"
+                  hide-details
+                />
               </div>
 
               <v-alert v-if="catalogError" type="error" variant="tonal" class="panel-alert">
@@ -576,6 +586,7 @@ const catalogViewMode = ref(mobile.value ? 'list' : 'table')
 const activeSection = ref('dashboard')
 const catalogSearch = ref('')
 const catalogTypeFilter = ref('any')
+const catalogSortMode = ref('newest')
 const selectedCatalogItemId = ref(null)
 const authDialogOpen = ref(false)
 const authLoading = ref(false)
@@ -635,6 +646,14 @@ const catalogTypeFilterOptions = computed(() => [
   ...itemTypes,
 ])
 
+const catalogSortOptions = [
+  { label: 'Newest first', value: 'newest' },
+  { label: 'Oldest first', value: 'oldest' },
+  { label: 'Title A-Z', value: 'title' },
+  { label: 'Type A-Z', value: 'type' },
+  { label: 'Topic A-Z', value: 'topic' },
+]
+
 const catalogRows = computed(() => {
   const search = catalogSearch.value.trim().toLowerCase()
 
@@ -647,6 +666,7 @@ const catalogRows = computed(() => {
         value.toLowerCase().includes(search)
       )
     })
+    .sort(sortCatalogRows)
 })
 
 const selectedCatalogItem = computed(() =>
@@ -904,7 +924,28 @@ function toCatalogRow(item) {
     visibility_value: item.visibility,
     visibility: formatItemType(item.visibility),
     created: new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(item.created_at)),
+    created_at: item.created_at,
   }
+}
+
+function sortCatalogRows(first, second) {
+  if (catalogSortMode.value === 'oldest') {
+    return new Date(first.created_at) - new Date(second.created_at)
+  }
+
+  if (catalogSortMode.value === 'title') {
+    return first.title.localeCompare(second.title)
+  }
+
+  if (catalogSortMode.value === 'type') {
+    return first.type.localeCompare(second.type) || first.title.localeCompare(second.title)
+  }
+
+  if (catalogSortMode.value === 'topic') {
+    return first.topic.localeCompare(second.topic) || first.title.localeCompare(second.title)
+  }
+
+  return new Date(second.created_at) - new Date(first.created_at)
 }
 
 function createEmptyItemForm() {
