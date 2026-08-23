@@ -268,19 +268,21 @@ body {
 
 .mobile-item-list {
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 .mobile-item-card {
-  align-items: center;
+  align-items: flex-start;
   background: #faf9f5;
   border: 1px solid #e2dfd7;
   border-radius: 8px;
   color: inherit;
   cursor: pointer;
   display: flex;
-  gap: 5px;
+  gap: 10px;
   justify-content: space-between;
+  min-height: 112px;
   padding: 12px;
   text-align: left;
   width: 100%;
@@ -331,6 +333,10 @@ body {
   display: flex;
   gap: 6px;
   font-size: 13px;
+}
+
+.mobile-item-meta {
+  line-height: 1.35;
 }
 
 .panel-heading h2 {
@@ -505,6 +511,14 @@ body {
   .metric-card {
     min-height: 76px;
     padding: 14px;
+  }
+
+  .mobile-item-list {
+    grid-template-columns: 1fr;
+  }
+
+  .mobile-item-card {
+    min-height: 0;
   }
 
   .metric-value {
