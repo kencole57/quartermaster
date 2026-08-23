@@ -23,8 +23,10 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 - [x] Add initial `catalog` and `library` schema migration.
 - [x] Add initial RLS policies.
 - [ ] Confirm Supabase GitHub integration settings.
-- [ ] Apply initial migration to the remote Supabase project.
-- [ ] Confirm generated tables, schemas, and policies in Supabase.
+- [x] Link local Supabase CLI to the remote project.
+- [x] Apply initial migration to the remote Supabase project.
+- [x] Confirm migration history on the remote Supabase project.
+- [ ] Confirm generated tables, schemas, and policies in the Supabase dashboard.
 - [ ] Add seed data for development examples.
 
 ## Auth And User Shell
