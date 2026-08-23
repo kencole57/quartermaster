@@ -13,6 +13,9 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 - [x] Add responsive app shell.
 - [x] Add mobile/table view-mode pattern.
 - [x] Document responsive testing targets.
+- [x] Add development setup notes.
+- [x] Add contribution and security notes.
+- [x] Pin Supabase CLI as a project dev dependency.
 
 ## Supabase Setup
 
