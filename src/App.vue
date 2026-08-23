@@ -448,11 +448,24 @@
                 <p>{{ selectedCatalogItem.description || 'No description yet.' }}</p>
               </div>
 
+              <div v-if="selectedItemLocations.length" class="location-list">
+                <span class="detail-label">Locations</span>
+                <div v-for="location in selectedItemLocations" :key="location.id" class="location-card">
+                  <div>
+                    <strong>{{ location.location_label }}</strong>
+                    <span>{{ formatItemType(location.location_type) }}</span>
+                  </div>
+                  <p>{{ location.path_or_detail || location.notes || 'No detail recorded.' }}</p>
+                </div>
+              </div>
+
               <div class="detail-actions">
                 <v-btn prepend-icon="mdi-pencil-outline" variant="outlined" @click="openEditItemDialog(selectedCatalogItem)">
                   Edit
                 </v-btn>
-                <v-btn prepend-icon="mdi-folder-marker-outline" variant="outlined">Add Location</v-btn>
+                <v-btn prepend-icon="mdi-folder-marker-outline" variant="outlined" @click="openLocationDialog(selectedCatalogItem)">
+                  Add Location
+                </v-btn>
               </div>
             </v-card>
           </section>
@@ -571,6 +584,72 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="locationDialogOpen" max-width="680">
+      <v-card class="item-dialog-card">
+        <v-card-title>Add Location</v-card-title>
+        <v-card-text>
+          <v-alert v-if="locationError" type="error" variant="tonal" class="panel-alert">
+            {{ locationError }}
+          </v-alert>
+
+          <v-form @submit.prevent="saveItemLocation">
+            <div class="item-form-grid">
+              <v-select
+                v-model="locationForm.ownership_status"
+                label="Ownership status"
+                :items="ownershipStatusOptions"
+                item-title="label"
+                item-value="value"
+                prepend-inner-icon="mdi-check-circle-outline"
+                variant="outlined"
+                :disabled="locationSaving"
+              />
+              <v-select
+                v-model="locationForm.location_type"
+                label="Location type"
+                :items="locationTypeOptions"
+                item-title="label"
+                item-value="value"
+                prepend-inner-icon="mdi-folder-marker-outline"
+                variant="outlined"
+                :disabled="locationSaving"
+              />
+              <v-text-field
+                v-model="locationForm.location_label"
+                label="Location label"
+                prepend-inner-icon="mdi-label-outline"
+                variant="outlined"
+                :disabled="locationSaving"
+                required
+              />
+              <v-text-field
+                v-model="locationForm.path_or_detail"
+                label="Path or detail"
+                prepend-inner-icon="mdi-file-tree-outline"
+                variant="outlined"
+                :disabled="locationSaving"
+              />
+            </div>
+            <v-textarea
+              v-model="locationForm.notes"
+              label="Notes"
+              prepend-inner-icon="mdi-note-text-outline"
+              variant="outlined"
+              rows="3"
+              auto-grow
+              :disabled="locationSaving"
+            />
+            <div class="dialog-actions">
+              <v-btn variant="text" :disabled="locationSaving" @click="locationDialogOpen = false">Cancel</v-btn>
+              <v-btn color="primary" prepend-icon="mdi-content-save-outline" type="submit" :loading="locationSaving">
+                Save Location
+              </v-btn>
+            </div>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -595,6 +674,7 @@ const authMessageType = ref('info')
 const email = ref('')
 const session = ref(null)
 const catalogItems = ref([])
+const userItemLocations = ref([])
 const tags = ref([])
 const catalogLoading = ref(false)
 const tagsLoading = ref(false)
@@ -607,6 +687,11 @@ const itemSaving = ref(false)
 const itemError = ref('')
 const itemForm = ref(createEmptyItemForm())
 const editingItemId = ref(null)
+const locationDialogOpen = ref(false)
+const locationSaving = ref(false)
+const locationError = ref('')
+const locationItemId = ref(null)
+const locationForm = ref(createEmptyLocationForm())
 
 const itemTypes = [
   { label: 'Package', value: 'package' },
@@ -626,6 +711,28 @@ const visibilityOptions = [
   { label: 'Private', value: 'private' },
   { label: 'Shared', value: 'shared' },
   { label: 'Public candidate', value: 'public_candidate' },
+]
+
+const ownershipStatusOptions = [
+  { label: 'Owned', value: 'owned' },
+  { label: 'Wishlist', value: 'wishlist' },
+  { label: 'Borrowed', value: 'borrowed' },
+  { label: 'Lent out', value: 'lent_out' },
+  { label: 'Sold', value: 'sold' },
+  { label: 'Archived', value: 'archived' },
+]
+
+const locationTypeOptions = [
+  { label: 'Local drive', value: 'local_drive' },
+  { label: 'External drive', value: 'external_drive' },
+  { label: 'NAS', value: 'nas' },
+  { label: 'Cloud', value: 'cloud' },
+  { label: 'Archive ZIP', value: 'archive_zip' },
+  { label: 'Bookshelf', value: 'bookshelf' },
+  { label: 'Box', value: 'box' },
+  { label: 'Office', value: 'office' },
+  { label: 'Storage', value: 'storage' },
+  { label: 'Other', value: 'other' },
 ]
 
 const periodOptions = computed(() => taxonomyTerms.value.filter((term) => term.term_type === 'historical_period'))
@@ -673,9 +780,13 @@ const selectedCatalogItem = computed(() =>
   catalogRows.value.find((item) => item.id === selectedCatalogItemId.value) || null
 )
 
+const selectedItemLocations = computed(() =>
+  userItemLocations.value.filter((location) => location.item_id === selectedCatalogItemId.value)
+)
+
 const metrics = computed(() => [
   { label: 'Catalog items', value: String(catalogItems.value.length), icon: 'mdi-archive-outline' },
-  { label: 'Known locations', value: '0', icon: 'mdi-folder-marker-outline' },
+  { label: 'Known locations', value: String(userItemLocations.value.length), icon: 'mdi-folder-marker-outline' },
   { label: 'Creators', value: '0', icon: 'mdi-account-group-outline' },
   { label: 'Tags', value: String(tags.value.length), icon: 'mdi-tag-outline' },
 ])
@@ -713,7 +824,7 @@ onMounted(async () => {
 })
 
 async function loadDashboardData() {
-  await Promise.all([loadCatalogItems(), loadTags(), loadTaxonomyTerms()])
+  await Promise.all([loadCatalogItems(), loadTags(), loadTaxonomyTerms(), loadUserItemLocations()])
 }
 
 async function loadCatalogItems() {
@@ -788,6 +899,31 @@ async function loadTaxonomyTerms() {
   taxonomyTerms.value = data || []
 }
 
+async function loadUserItemLocations() {
+  const { data, error } = await supabase
+    .schema('library')
+    .from('user_item_locations')
+    .select(`
+      id,
+      location_type,
+      location_label,
+      path_or_detail,
+      notes,
+      user_item:user_item_id(item_id)
+    `)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    catalogError.value = error.message
+    return
+  }
+
+  userItemLocations.value = (data || []).map((location) => ({
+    ...location,
+    item_id: location.user_item?.item_id,
+  }))
+}
+
 function openAddItemDialog() {
   editingItemId.value = null
   itemForm.value = createEmptyItemForm()
@@ -807,6 +943,13 @@ function openEditItemDialog(item) {
   }
   itemError.value = ''
   itemDialogOpen.value = true
+}
+
+function openLocationDialog(item) {
+  locationItemId.value = item.id
+  locationForm.value = createEmptyLocationForm()
+  locationError.value = ''
+  locationDialogOpen.value = true
 }
 
 function setActiveSection(section) {
@@ -864,6 +1007,56 @@ async function saveCatalogItem() {
   authMessageType.value = 'success'
   authMessage.value = editingItemId.value ? 'Catalog item updated.' : 'Catalog item added.'
   await loadCatalogItems()
+}
+
+async function saveItemLocation() {
+  if (!locationForm.value.location_label.trim()) {
+    locationError.value = 'Location label is required.'
+    return
+  }
+
+  locationSaving.value = true
+  locationError.value = ''
+
+  const { data: userItem, error: userItemError } = await supabase
+    .schema('library')
+    .from('user_items')
+    .upsert(
+      {
+        user_id: session.value.user.id,
+        item_id: locationItemId.value,
+        ownership_status: locationForm.value.ownership_status,
+      },
+      { onConflict: 'user_id,item_id' }
+    )
+    .select('id')
+    .single()
+
+  if (userItemError) {
+    locationSaving.value = false
+    locationError.value = userItemError.message
+    return
+  }
+
+  const { error: locationInsertError } = await supabase.schema('library').from('user_item_locations').insert({
+    user_item_id: userItem.id,
+    location_type: locationForm.value.location_type,
+    location_label: locationForm.value.location_label.trim(),
+    path_or_detail: locationForm.value.path_or_detail.trim() || null,
+    notes: locationForm.value.notes.trim() || null,
+  })
+
+  locationSaving.value = false
+
+  if (locationInsertError) {
+    locationError.value = locationInsertError.message
+    return
+  }
+
+  locationDialogOpen.value = false
+  authMessageType.value = 'success'
+  authMessage.value = 'Location added.'
+  await loadUserItemLocations()
 }
 
 async function sendMagicLink() {
@@ -956,6 +1149,16 @@ function createEmptyItemForm() {
     historical_period_id: null,
     conflict_id: null,
     visibility: 'private',
+  }
+}
+
+function createEmptyLocationForm() {
+  return {
+    ownership_status: 'owned',
+    location_type: 'local_drive',
+    location_label: '',
+    path_or_detail: '',
+    notes: '',
   }
 }
 </script>

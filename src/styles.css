@@ -374,6 +374,39 @@ body {
   margin: 0;
 }
 
+.location-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.location-card {
+  background: #faf9f5;
+  border: 1px solid #e2dfd7;
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+
+.location-card div {
+  align-items: baseline;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.location-card span {
+  color: #62727a;
+  font-size: 13px;
+}
+
+.location-card p {
+  color: #3d484d;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .detail-actions {
   display: flex;
   flex-wrap: wrap;

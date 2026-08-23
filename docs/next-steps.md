@@ -54,11 +54,11 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 
 ## Library MVP
 
-- [ ] Add user ownership record for catalog items.
-- [ ] Add user item locations.
+- [x] Add user ownership record for catalog items.
+- [x] Add user item locations.
 - [ ] Add user file locations.
 - [ ] Add personal notes.
-- [ ] Add ownership/status fields: owned, wishlist, borrowed, lent out, sold, archived.
+- [x] Add ownership/status fields: owned, wishlist, borrowed, lent out, sold, archived.
 
 ## Search And Filtering
 
