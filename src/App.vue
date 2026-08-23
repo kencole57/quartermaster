@@ -1046,6 +1046,11 @@ async function saveItemLocation() {
     return
   }
 
+  if (isDuplicateLocation()) {
+    locationError.value = 'This item already has that location.'
+    return
+  }
+
   locationSaving.value = true
   locationError.value = ''
 
@@ -1170,6 +1175,24 @@ function sortCatalogRows(first, second) {
   }
 
   return new Date(second.created_at) - new Date(first.created_at)
+}
+
+function isDuplicateLocation() {
+  const nextType = locationForm.value.location_type
+  const nextLabel = normalizeLocationValue(locationForm.value.location_label)
+  const nextPath = normalizeLocationValue(locationForm.value.path_or_detail)
+
+  return userItemLocations.value.some(
+    (location) =>
+      location.item_id === locationItemId.value &&
+      location.location_type === nextType &&
+      normalizeLocationValue(location.location_label) === nextLabel &&
+      normalizeLocationValue(location.path_or_detail) === nextPath
+  )
+}
+
+function normalizeLocationValue(value) {
+  return (value || '').trim().replaceAll('\\', '/').replace(/\/+$/, '').toLowerCase()
 }
 
 function uniqueNonEmpty(values) {
