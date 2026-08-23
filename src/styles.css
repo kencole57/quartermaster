@@ -272,16 +272,28 @@ body {
 }
 
 .mobile-item-card {
+  align-items: center;
   background: #faf9f5;
   border: 1px solid #e2dfd7;
   border-radius: 8px;
   color: inherit;
   cursor: pointer;
-  display: grid;
+  display: flex;
   gap: 5px;
+  justify-content: space-between;
   padding: 12px;
   text-align: left;
   width: 100%;
+}
+
+.mobile-item-card-main {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.mobile-item-actions {
+  flex: 0 0 auto;
 }
 
 .mobile-item-card:focus-visible {
@@ -301,6 +313,11 @@ body {
 
 .clickable-row {
   cursor: pointer;
+}
+
+.actions-column {
+  text-align: right;
+  width: 72px;
 }
 
 .mobile-item-title {

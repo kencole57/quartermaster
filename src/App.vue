@@ -353,6 +353,7 @@
                       <th>Topic</th>
                       <th>Visibility</th>
                       <th>Created</th>
+                      <th class="actions-column">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -368,6 +369,19 @@
                       <td>{{ item.topic }}</td>
                       <td>{{ item.visibility }}</td>
                       <td>{{ item.created }}</td>
+                      <td class="actions-column">
+                        <v-tooltip text="Edit item">
+                          <template #activator="{ props }">
+                            <v-btn
+                              v-bind="props"
+                              icon="mdi-pencil-outline"
+                              variant="text"
+                              aria-label="Edit item"
+                              @click.stop="openEditItemDialog(item)"
+                            />
+                          </template>
+                        </v-tooltip>
+                      </td>
                     </tr>
                   </tbody>
                 </v-table>
@@ -381,11 +395,26 @@
                   type="button"
                   @click="selectCatalogItem(item.id)"
                 >
-                  <span class="mobile-item-title">{{ item.title }}</span>
-                  <span class="mobile-item-meta">{{ item.type }} - {{ item.topic }}</span>
-                  <span class="mobile-item-location">
-                    <v-icon icon="mdi-eye-outline" size="18" />
-                    {{ item.visibility }}
+                  <span class="mobile-item-card-main">
+                    <span class="mobile-item-title">{{ item.title }}</span>
+                    <span class="mobile-item-meta">{{ item.type }} - {{ item.topic }}</span>
+                    <span class="mobile-item-location">
+                      <v-icon icon="mdi-eye-outline" size="18" />
+                      {{ item.visibility }}
+                    </span>
+                  </span>
+                  <span class="mobile-item-actions">
+                    <v-tooltip text="Edit item">
+                      <template #activator="{ props }">
+                        <v-btn
+                          v-bind="props"
+                          icon="mdi-pencil-outline"
+                          variant="text"
+                          aria-label="Edit item"
+                          @click.stop="openEditItemDialog(item)"
+                        />
+                      </template>
+                    </v-tooltip>
                   </span>
                 </button>
               </div>
