@@ -1,7 +1,22 @@
 <template>
   <v-app>
     <v-layout>
-      <v-navigation-drawer permanent width="280">
+      <v-app-bar v-if="mobile" color="surface" elevation="0" height="64" class="mobile-app-bar">
+        <v-app-bar-nav-icon aria-label="Open navigation" @click="drawerOpen = true" />
+        <div class="mobile-brand">
+          <div class="brand-mark brand-mark-small">Q</div>
+          <div class="brand-title">Quartermaster</div>
+        </div>
+        <v-spacer />
+        <v-btn icon="mdi-plus" color="primary" variant="tonal" aria-label="Add item" />
+      </v-app-bar>
+
+      <v-navigation-drawer
+        v-model="drawerOpen"
+        :permanent="!mobile"
+        :temporary="mobile"
+        :width="mobile ? 260 : 280"
+      >
         <div class="brand-panel">
           <div class="brand-mark">Q</div>
           <div>
@@ -26,7 +41,7 @@
               <h1>Quartermaster</h1>
               <p>Track what you have, what it describes, and where your copy lives.</p>
             </div>
-            <v-btn color="primary" prepend-icon="mdi-plus">Add Item</v-btn>
+            <v-btn color="primary" prepend-icon="mdi-plus" class="desktop-action">Add Item</v-btn>
           </section>
 
           <section class="search-band">
@@ -64,29 +79,31 @@
           </section>
 
           <section class="content-grid">
-            <v-card variant="flat" class="panel-card">
+            <v-card variant="flat" class="panel-card recent-panel">
               <div class="panel-heading">
                 <h2>Recent Catalog Items</h2>
                 <v-btn icon="mdi-arrow-right" variant="text" aria-label="Open catalog" />
               </div>
-              <v-table>
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Topic</th>
-                    <th>Location</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in recentItems" :key="item.title">
-                    <td>{{ item.title }}</td>
-                    <td>{{ item.type }}</td>
-                    <td>{{ item.topic }}</td>
-                    <td>{{ item.location }}</td>
-                  </tr>
-                </tbody>
-              </v-table>
+              <div class="table-scroll">
+                <v-table>
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Type</th>
+                      <th>Topic</th>
+                      <th>Location</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in recentItems" :key="item.title">
+                      <td>{{ item.title }}</td>
+                      <td>{{ item.type }}</td>
+                      <td>{{ item.topic }}</td>
+                      <td>{{ item.location }}</td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </div>
             </v-card>
 
             <v-card variant="flat" class="panel-card">
@@ -106,6 +123,17 @@
 </template>
 
 <script setup>
+import { computed, ref, watch } from 'vue'
+import { useDisplay } from 'vuetify'
+
+const { mdAndDown } = useDisplay()
+const mobile = computed(() => mdAndDown.value)
+const drawerOpen = ref(!mobile.value)
+
+watch(mobile, (isMobile) => {
+  drawerOpen.value = !isMobile
+})
+
 const metrics = [
   { label: 'Catalog items', value: '0', icon: 'mdi-archive-outline' },
   { label: 'Known locations', value: '0', icon: 'mdi-folder-marker-outline' },
