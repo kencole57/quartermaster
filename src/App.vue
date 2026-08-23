@@ -8,7 +8,7 @@
           <div class="brand-title">Quartermaster</div>
         </div>
         <v-spacer />
-        <v-btn icon="mdi-plus" color="primary" variant="tonal" aria-label="Add item" />
+        <v-btn v-if="session" icon="mdi-plus" color="primary" variant="tonal" aria-label="Add item" />
       </v-app-bar>
 
       <v-navigation-drawer
@@ -32,6 +32,31 @@
           <v-list-item prepend-icon="mdi-tag-multiple-outline" title="Tags" />
           <v-list-item prepend-icon="mdi-map-search-outline" title="Research" />
         </v-list>
+
+        <template #append>
+          <div class="drawer-account">
+            <div v-if="session" class="account-summary">
+              <v-icon icon="mdi-account-circle-outline" size="28" />
+              <div>
+                <div class="account-label">Signed in</div>
+                <div class="account-email">{{ session.user.email }}</div>
+              </div>
+            </div>
+            <v-btn
+              v-if="session"
+              block
+              prepend-icon="mdi-logout"
+              variant="outlined"
+              :loading="authLoading"
+              @click="signOut"
+            >
+              Sign Out
+            </v-btn>
+            <v-btn v-else block color="primary" prepend-icon="mdi-login" @click="authDialogOpen = true">
+              Sign In
+            </v-btn>
+          </div>
+        </template>
       </v-navigation-drawer>
 
       <v-main>
@@ -41,8 +66,26 @@
               <h1>Quartermaster</h1>
               <p>Track what you have, what it describes, and where your copy lives.</p>
             </div>
-            <v-btn color="primary" prepend-icon="mdi-plus" class="desktop-action">Add Item</v-btn>
+            <div class="topbar-actions">
+              <v-chip v-if="session" prepend-icon="mdi-account-circle-outline" variant="tonal" color="primary">
+                {{ session.user.email }}
+              </v-chip>
+              <v-btn
+                v-else
+                variant="outlined"
+                prepend-icon="mdi-login"
+                class="desktop-action"
+                @click="authDialogOpen = true"
+              >
+                Sign In
+              </v-btn>
+              <v-btn v-if="session" color="primary" prepend-icon="mdi-plus" class="desktop-action">Add Item</v-btn>
+            </div>
           </section>
+
+          <v-alert v-if="authMessage" class="auth-alert" :type="authMessageType" variant="tonal" closable>
+            {{ authMessage }}
+          </v-alert>
 
           <section class="search-band">
             <v-text-field
@@ -142,21 +185,107 @@
         </v-container>
       </v-main>
     </v-layout>
+
+    <v-dialog v-model="authDialogOpen" max-width="460">
+      <v-card class="auth-card">
+        <v-card-title>Sign In</v-card-title>
+        <v-card-text>
+          <p class="auth-copy">
+            Enter your email and Supabase will send a magic link for Quartermaster.
+          </p>
+          <v-form @submit.prevent="sendMagicLink">
+            <v-text-field
+              v-model="email"
+              label="Email"
+              type="email"
+              prepend-inner-icon="mdi-email-outline"
+              variant="outlined"
+              autocomplete="email"
+              :disabled="authLoading"
+            />
+            <v-btn
+              block
+              color="primary"
+              prepend-icon="mdi-email-fast-outline"
+              type="submit"
+              :loading="authLoading"
+            >
+              Send Magic Link
+            </v-btn>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify'
+import { supabase } from './lib/supabase'
 
 const { mdAndDown } = useDisplay()
 const mobile = computed(() => mdAndDown.value)
 const drawerOpen = ref(!mobile.value)
 const catalogViewMode = ref(mobile.value ? 'list' : 'table')
+const authDialogOpen = ref(false)
+const authLoading = ref(false)
+const authMessage = ref('')
+const authMessageType = ref('info')
+const email = ref('')
+const session = ref(null)
 
 watch(mobile, (isMobile) => {
   drawerOpen.value = !isMobile
 })
+
+onMounted(async () => {
+  const { data } = await supabase.auth.getSession()
+  session.value = data.session
+
+  supabase.auth.onAuthStateChange((_event, newSession) => {
+    session.value = newSession
+    authDialogOpen.value = false
+  })
+})
+
+async function sendMagicLink() {
+  authLoading.value = true
+  authMessage.value = ''
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email: email.value,
+    options: {
+      emailRedirectTo: window.location.origin,
+    },
+  })
+
+  authLoading.value = false
+
+  if (error) {
+    authMessageType.value = 'error'
+    authMessage.value = error.message
+    return
+  }
+
+  authMessageType.value = 'success'
+  authMessage.value = 'Magic link sent. Check your email to finish signing in.'
+}
+
+async function signOut() {
+  authLoading.value = true
+  const { error } = await supabase.auth.signOut()
+  authLoading.value = false
+
+  if (error) {
+    authMessageType.value = 'error'
+    authMessage.value = error.message
+    return
+  }
+
+  authMessageType.value = 'info'
+  authMessage.value = 'Signed out.'
+}
 
 const metrics = [
   { label: 'Catalog items', value: '0', icon: 'mdi-archive-outline' },

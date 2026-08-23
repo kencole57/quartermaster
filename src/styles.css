@@ -63,6 +63,12 @@ body {
   margin-bottom: 22px;
 }
 
+.topbar-actions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
 .topbar h1 {
   font-size: 32px;
   line-height: 1.1;
@@ -84,6 +90,46 @@ body {
   grid-template-columns: minmax(260px, 1fr) 180px 220px;
   margin-bottom: 18px;
   padding: 16px;
+}
+
+.auth-alert {
+  margin-bottom: 18px;
+}
+
+.drawer-account {
+  border-top: 1px solid #e2dfd7;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.account-summary {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+
+.account-label {
+  color: #62727a;
+  font-size: 12px;
+}
+
+.account-email {
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-card {
+  border-radius: 8px;
+}
+
+.auth-copy {
+  color: #5c686d;
+  margin: 0 0 18px;
 }
 
 .metric-grid {
@@ -217,6 +263,12 @@ body {
     gap: 14px;
     flex-direction: column;
     margin-bottom: 16px;
+  }
+
+  .topbar-actions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
   }
 
   .topbar h1 {

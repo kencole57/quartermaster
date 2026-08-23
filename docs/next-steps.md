@@ -31,10 +31,10 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 
 ## Auth And User Shell
 
-- [ ] Add sign-in/sign-out UI.
-- [ ] Add profile bootstrap flow.
+- [x] Add sign-in/sign-out UI.
+- [x] Add profile bootstrap flow.
 - [ ] Add authenticated route guard.
-- [ ] Show current user/account state in the app shell.
+- [x] Show current user/account state in the app shell.
 
 ## Catalog MVP
 
