@@ -56,7 +56,7 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 
 - [x] Add user ownership record for catalog items.
 - [x] Add user item locations.
-- [x] Suggest prior location labels and paths during location entry.
+- [x] Suggest prior location labels and paths during location entry with selectable chips.
 - [ ] Add user file locations.
 - [ ] Add personal notes.
 - [x] Add ownership/status fields: owned, wishlist, borrowed, lent out, sold, archived.

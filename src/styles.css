@@ -203,6 +203,29 @@ body {
   grid-column: 1 / -1;
 }
 
+.suggested-field {
+  display: grid;
+  gap: 8px;
+}
+
+.suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 26px;
+}
+
+.suggestion-chips .v-chip {
+  max-width: 100%;
+}
+
+.suggestion-chips .v-chip__content {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dialog-actions {
   display: flex;
   gap: 10px;

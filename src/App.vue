@@ -615,25 +615,50 @@
                 variant="outlined"
                 :disabled="locationSaving"
               />
-              <v-combobox
-                v-model="locationForm.location_label"
-                label="Location label"
-                :items="priorLocationLabels"
-                prepend-inner-icon="mdi-label-outline"
-                variant="outlined"
-                :disabled="locationSaving"
-                hide-details
-                required
-              />
-              <v-combobox
-                v-model="locationForm.path_or_detail"
-                label="Path or detail"
-                :items="priorLocationPaths"
-                prepend-inner-icon="mdi-file-tree-outline"
-                variant="outlined"
-                :disabled="locationSaving"
-                hide-details
-              />
+              <div class="suggested-field">
+                <v-text-field
+                  v-model="locationForm.location_label"
+                  label="Location label"
+                  prepend-inner-icon="mdi-label-outline"
+                  variant="outlined"
+                  :disabled="locationSaving"
+                  hide-details
+                  required
+                />
+                <div v-if="priorLocationLabels.length" class="suggestion-chips" aria-label="Prior location labels">
+                  <v-chip
+                    v-for="label in priorLocationLabels.slice(0, 6)"
+                    :key="label"
+                    size="small"
+                    variant="tonal"
+                    color="primary"
+                    @click="locationForm.location_label = label"
+                  >
+                    {{ label }}
+                  </v-chip>
+                </div>
+              </div>
+              <div class="suggested-field">
+                <v-text-field
+                  v-model="locationForm.path_or_detail"
+                  label="Path or detail"
+                  prepend-inner-icon="mdi-file-tree-outline"
+                  variant="outlined"
+                  :disabled="locationSaving"
+                  hide-details
+                />
+                <div v-if="priorLocationPaths.length" class="suggestion-chips" aria-label="Prior paths or details">
+                  <v-chip
+                    v-for="path in priorLocationPaths.slice(0, 6)"
+                    :key="path"
+                    size="small"
+                    variant="tonal"
+                    @click="locationForm.path_or_detail = path"
+                  >
+                    {{ path }}
+                  </v-chip>
+                </div>
+              </div>
             </div>
             <v-textarea
               v-model="locationForm.notes"
