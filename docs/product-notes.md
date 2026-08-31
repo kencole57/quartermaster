@@ -9,9 +9,15 @@ The app should answer:
 - What do I have?
 - What topic, conflict, period, force, battle, or theatre is it about?
 - Which creator, publisher, campaign, or source produced it?
-- Is it part of a package or a standalone item?
+- Is it part of a package, magazine series, or standalone item?
 - Where is my copy?
 - Have I printed, read, used, archived, or misplaced it?
+
+For STL collections, the app should distinguish creator, package, model, and file. A package can come
+from a creator store, Kickstarter, Patreon, or bundle page, while a standalone model may be purchased
+directly from a marketplace such as Wargaming3D. Source URLs belong on package or model records,
+depending on what was actually purchased; individual file records should describe the files inside
+that model rather than duplicate purchase URLs.
 
 ## Design Principle
 
@@ -27,7 +33,7 @@ Stage 1 is catalog and location management only. It should not attempt to become
 
 - Optional managed uploads.
 - Folder scanning and checksum matching.
-- ISBN lookup.
+- ISBN/ISSN lookup.
 - Document text extraction.
 - STL previews and thumbnails.
 - Google Drive, Dropbox, OneDrive, or NAS integrations.

@@ -13,7 +13,7 @@
 - Sign in/out.
 - Create creators.
 - Create catalog items.
-- Add books, documents, packages, and STL models.
+- Add books, magazines, magazine series, documents, packages, and STL models.
 - Add file metadata.
 - Add user ownership records.
 - Add user item/file locations.
@@ -24,7 +24,7 @@
 
 - Bulk add file references from folder manifests.
 - Checksum duplicate detection.
-- ISBN lookup for books.
+- ISBN/ISSN lookup for books and magazines.
 - Better taxonomy for conflicts, battles, theatres, units, and factions.
 - Reusable location roots and path templates for repeated folder/shelf structures.
 

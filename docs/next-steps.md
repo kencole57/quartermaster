@@ -46,31 +46,31 @@ This checklist is the working project tracker for Quartermaster. Keep it practic
 - [x] Create add catalog item form.
 - [x] Verify catalog item creation from the app.
 - [x] Create edit catalog item form.
-- [ ] Support item types: package, book, document, STL model, map, photo, reference, other.
-- [ ] Add creator list and creator CRUD.
-- [ ] Add file metadata list for an item.
-- [ ] Add book details fields.
-- [ ] Add tags and item tag assignment.
+- [x] Support item types: package, book, book series, magazine, magazine series, document, STL model, map, photo, reference, other.
+- [x] Add creator list and creator CRUD.
+- [x] Add file metadata list for an item.
+- [x] Add book and magazine details fields, including ISBN, ISSN, series, volume, issue, and issue date.
+- [x] Add tags and item tag assignment.
 
 ## Library MVP
 
 - [x] Add user ownership record for catalog items.
 - [x] Add user item locations.
 - [x] Suggest prior location labels and paths during location entry.
-- [ ] Replace location suggestion chips with filtered autocomplete inputs.
+- [x] Replace location suggestion chips with filtered autocomplete inputs.
 - [x] Prevent duplicate item locations by type, label, and path/detail.
-- [ ] Add user file locations.
-- [ ] Add personal notes.
+- [x] Add user file locations.
+- [x] Add personal notes.
 - [x] Add ownership/status fields: owned, wishlist, borrowed, lent out, sold, archived.
-- [ ] Add reusable location roots and path templates.
+- [x] Add reusable location roots and path templates.
 
 ## Search And Filtering
 
-- [ ] Add text search against catalog item title, subtitle, and description.
-- [ ] Add filters for item type, creator, period, conflict, theatre, faction, and tag.
+- [x] Add text search against catalog item title, subtitle, and description.
+- [x] Add filters for item type, creator, period, conflict, theatre, faction, and tag.
 - [x] Add basic catalog sort options.
-- [ ] Add mobile-friendly search results list mode.
-- [ ] Add table mode for desktop and Surface use.
+- [x] Add mobile-friendly search results list mode.
+- [x] Add table mode for desktop and Surface use.
 
 ## Data Modeling Follow-Ups
 
@@ -95,7 +95,7 @@ Before each meaningful UI milestone, check the targets listed in `docs/responsiv
 
 - [ ] Folder scan/import workflow.
 - [ ] Checksum duplicate detection.
-- [ ] ISBN lookup for books.
+- [ ] ISBN/ISSN lookup for books and magazines.
 - [ ] PDF text extraction.
 - [ ] STL preview and thumbnail metadata.
 - [ ] Optional managed storage.
